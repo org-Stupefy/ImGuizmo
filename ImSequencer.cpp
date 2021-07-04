@@ -1,7 +1,3 @@
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include "ImSequencer.h"
 #include "imgui.h"
 #include "imgui_internal.h"
@@ -28,9 +24,6 @@ namespace ImSequencer
          draw_list->AddLine(ImVec2(midx, delRect.Min.y + 3), ImVec2(midx, delRect.Max.y - 3), delColor, 2);
       return overDel;
    }
-
-   static int min(int a, int b) { return (a < b) ? a : b; }
-   static int max(int a, int b) { return (a > b) ? a : b; }
 
    bool Sequencer(SequenceInterface* sequence, int* currentFrame, bool* expanded, int* selectedEntry, int* firstFrame, int sequenceOptions)
    {
@@ -79,7 +72,6 @@ namespace ImSequencer
       ImVector<CustomDraw> customDraws;
       ImVector<CustomDraw> compactCustomDraws;
       // zoom in/out
-      int frameOverCursor = 0;
       const int visibleFrameCount = (int)floorf((canvas_size.x - legendWidth) / framePixelWidth);
       const float barWidthRatio = ImMin(visibleFrameCount / (float)frameCount, 1.f);
       const float barWidthInPixels = barWidthRatio * (canvas_size.x - legendWidth);
@@ -119,7 +111,7 @@ namespace ImSequencer
          ImGui::InvisibleButton("canvas", ImVec2(canvas_size.x - canvas_pos.x, (float)ItemHeight));
          draw_list->AddRectFilled(canvas_pos, ImVec2(canvas_size.x + canvas_pos.x, canvas_pos.y + ItemHeight), 0xFF3D3837, 0);
          char tmps[512];
-         sprintf(tmps, "%d Frames / %d entries", frameCount, sequenceCount);
+         ImFormatString(tmps, IM_ARRAYSIZE(tmps), "%d Frames / %d entries", frameCount, sequenceCount);
          draw_list->AddText(ImVec2(canvas_pos.x + 26, canvas_pos.y + 2), 0xFFFFFFFF, tmps);
       }
       else
@@ -220,13 +212,13 @@ namespace ImSequencer
             if (baseIndex && px > (canvas_pos.x + legendWidth))
             {
                char tmps[512];
-               sprintf(tmps, "%d", i);
+               ImFormatString(tmps, IM_ARRAYSIZE(tmps), "%d", i);
                draw_list->AddText(ImVec2((float)px + 3.f, canvas_pos.y), 0xFFBBBBBB, tmps);
             }
 
          };
 
-         auto drawLineContent = [&](int i, int regionHeight) {
+         auto drawLineContent = [&](int i, int /*regionHeight*/) {
             int px = (int)canvas_pos.x + int(i * framePixelWidth) + legendWidth - int(firstFrameUsed * framePixelWidth);
             int tiretStart = int(contentMin.y);
             int tiretEnd = int(contentMax.y);
@@ -448,7 +440,7 @@ namespace ImSequencer
             float cursorOffset = contentMin.x + legendWidth + (*currentFrame - firstFrameUsed) * framePixelWidth + framePixelWidth / 2 - cursorWidth * 0.5f;
             draw_list->AddLine(ImVec2(cursorOffset, canvas_pos.y), ImVec2(cursorOffset, contentMax.y), 0xA02A2AFF, cursorWidth);
             char tmps[512];
-            sprintf(tmps, "%d", *currentFrame);
+            ImFormatString(tmps, IM_ARRAYSIZE(tmps), "%d", *currentFrame);
             draw_list->AddText(ImVec2(cursorOffset + 10, canvas_pos.y + 2), 0xFF2A2AFF, tmps);
          }
 
@@ -511,7 +503,6 @@ namespace ImSequencer
             ImVec2 scrollBarD(scrollBarMin.x + legendWidth + barWidthInPixels + startFrameOffset, scrollBarMax.y - 2);
             draw_list->AddRectFilled(scrollBarC, scrollBarD, (inScrollBar || MovingScrollBar) ? 0xFF606060 : 0xFF505050, 6);
 
-            float handleRadius = (scrollBarMax.y - scrollBarMin.y) / 2;
             ImRect barHandleLeft(scrollBarC, ImVec2(scrollBarC.x + 14, scrollBarD.y));
             ImRect barHandleRight(ImVec2(scrollBarD.x - 14, scrollBarC.y), scrollBarD);
 
